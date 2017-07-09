@@ -1,14 +1,60 @@
-```
-madhex
-```
 
-| **一、关于gcc、glibc和binutils模块之间的关系**1、gcc（gnu collect compiler）是一组编译工具的总称。它主要完成的工作任务是“预处理”和“编译”，以及提供了与编译器紧密相关的运行库的支持，如libgcc\_s.so、libstdc++.so等。2、binutils提供了一系列用来创建、管理和维护二进制目标文件的工具程序，如汇编（as）、连接（ld）、静态库归档（ar）、反汇编（objdump）、elf结构分析工具（readelf）、无效调试信息和符号的工具（strip）等。通常，binutils与gcc是紧密相集成的，没有binutils的话，gcc是不能正常工作的。3、glibc是gnu发布的libc库，也即c运行库。glibc是linux系统中最底层的api（应用程序开发接口），几乎其它任何的运行库都会倚赖于glibc。glibc除了封装linux操作系统所提供的系统服务外，它本身也提供了许多其它一些必要功能服务的实现，主要的如下： （1）string，字符串处理 （2）signal，信号处理 （3）dlfcn，管理共享库的动态加载 （4）direct，文件目录操作 （5）elf，共享库的动态加载器，也即interpreter （6）iconv，不同字符集的编码转换 （7）inet，socket接口的实现 （8）intl，国际化，也即gettext的实现 （9）io （10）linuxthreads （11）locale，本地化 （12）login，虚终端设备的管理，及系统的安全访问 （13）malloc，动态内存的分配与管理 （14）nis （15）stdlib，其它基本功能 **二、在现有系统上如何升级（rdhat9上实践的）**1、升级这些库时，最好不要覆盖系统中缺省的；因为这些库，尤其是glibc库，是系统中最核心的共享库和工具，如果盲目覆盖，很可能导致整个系统瘫痪，因为一般更新glibc库时，其它所有以来libc库的共享库都需要重新被编译一遍。因此，为了调试某个程序进入glibc时，最好把glibc安装到/usr/local/lib下。2、首先编译glibc库。注意最好令建立一个glibc-build的目录，configure时加上--enable-add-ons=linuxthreads选项。make install安装到/usr/local下。3、修改gcc的spec文件（/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/specs），更改ld-linux.so.2为/usr/local/lib下的新的共享库装载器。4、编译binutils库，此时被编译出的程序会连接到/usr/local/lib下的新的libc库。注意，在configure前，需要设置ld缺省连接的路径（LIBRARY\_PATH=/usr/local/lib:/lib:/usr/lib），否则binutils会configure出错，找不到libc中的一些符号。具体步骤如下： （1）export LIBRARY\_PATH=/usr/local/lib:/lib:/usr/lib （2）mkdir binutils-build && cd binutils-build （3）../binutils-2.13.90.0.18/configure （4）make （5）make -C ld clean （6）make -C ld LIB\_PATH=/usr/lib:/lib:/usr/local/bin（设置编译后的ld的缺省库搜索路径，后面的比前面的优先级高） （7）make install**三、总结**1、运行时，动态库的装载依赖于ld-linux.so.6的实现，它查找共享库的顺序如下： （1）ld-linux.so.6在可执行的目标文件中被指定，可用readelf命令查看 （2）ld-linux.so.6缺省在/usr/lib和lib中搜索；当glibc安装到/usr/local下时，它查找/usr/local/lib （3）LD\_LIBRARY\_PATH环境变量中所设定的路径 （4）/etc/ld.so.conf（或/usr/local/etc/ld.so.conf）中所指定的路径，由ldconfig生成二进制的ld.so.cache中2、编译时，搜索库的路径顺序如下： （1）ld-linux.so.6由gcc的spec文件中所设定 （2）gcc --print-search-dirs所打印出的路径，主要是libgcc\_s.so等库。可以通过GCC\_EXEC\_PREFIX来设定 （3）LIBRARY\_PATH环境变量中所设定的路径，或编译的命令行中指定的-L/usr/local/lib （2）binutils中的ld所设定的缺省搜索路径顺序，编译binutils时指定。（可以通过“ld --verbose \| grep SEARCH”来查看）3、二进制程序的搜索路径顺序为PATH环境变量中所设定。一般/usr/local/bin高于/usr/bin4、编译时的头文件的搜索路径顺序，与library的查找顺序类似。一般/usr/local/include高于/usr/include  转:[http://www.cnblogs.com/zhangze/archive/2010/10/12/1848471.html](http://www.cnblogs.com/zhangze/archive/2010/10/12/1848471.html) |
+
+创建 Hexo 主题非常容易，您只要在`themes`文件夹内，新增一个任意名称的文件夹，并修改`_config.yml`内的`theme`设定，即可切换主题。一个主题可能会有以下的结构：
+
+| .├── \_config.yml├── languages├── layout├── scripts└── source |
 | :--- |
 
 
-|  |
+### \_config.yml {#config-yml}
+
+主题的配置文件。修改时会自动更新，无需重启服务器。
+
+### languages {#languages}
+
+语言文件夹。请参见[国际化 \(i18n\)](https://hexo.io/zh-cn/docs/internationalization.html)。
+
+### layout {#layout}
+
+布局文件夹。用于存放主题的模板文件，决定了网站内容的呈现方式，Hexo 内建[Swig](http://paularmstrong.github.com/swig/)模板引擎，您可以另外安装插件来获得[EJS](https://github.com/hexojs/hexo-renderer-ejs)、[Haml](https://github.com/hexojs/hexo-renderer-haml)或[Jade](https://github.com/hexojs/hexo-renderer-jade)支持，Hexo 根据模板文件的扩展名来决定所使用的模板引擎，例如：
+
+| layout.ejs   - 使用 EJSlayout.swig  - 使用 Swig |
 | :--- |
 
 
+您可参考[模板](https://hexo.io/zh-cn/docs/templates.html)以获得更多信息。
+
+### scripts {#scripts}
+
+脚本文件夹。在启动时，Hexo 会载入此文件夹内的 JavaScript 文件，请参见[插件](https://hexo.io/zh-cn/docs/plugins.html)以获得更多信息。
+
+### source {#source}
+
+资源文件夹，除了模板以外的 Asset，例如 CSS、JavaScript 文件等，都应该放在这个文件夹中。文件或文件夹开头名称为`_`（下划线线）或隐藏的文件会被忽略。
+
+如果文件可以被渲染的话，会经过解析然后储存到`public`文件夹，否则会直接拷贝到`public`文件夹。
+
+### 发布 {#发布}
+
+当您完成主题后，可以考虑将它发布到[主题列表](https://hexo.io/themes)，让更多人能够使用您的主题。在发布前建议先进行[主题单元测试](https://github.com/hexojs/hexo-theme-unit-test)，确保每一项功能都能正常使用。发布主题的步骤和[更新文档](https://hexo.io/zh-cn/docs/contributing.html#更新文档)非常类似。
+
+1. Fork
+   [hexojs/site](https://github.com/hexojs/site)
+2. 把库（repository）复制到电脑上，并安装所依赖的插件。
+
+   | $ git clone https://github.com/&lt;username&gt;/site.git$ cd site$ npm install |
+   | :--- |
+
+3. 编辑`source/_data/themes.yml`，在文件中新增您的主题，例如：
+
+   | - name: landscape  description: A brand new default theme for Hexo.  link: https://github.com/hexojs/hexo-theme-landscape  preview: http://hexo.io/hexo-theme-landscape  tags:    - official    - responsive    - widget    - two\_column    - one\_column |
+   | :--- |
+
+4. 在`source/themes/screenshots`新增同名的截图档案，图片必须为 800x500 的 PNG 文件。
+
+5. 推送（push）分支。
+6. 建立一个新的合并申请（pull request）并描述改动。
+
+  
 
 
