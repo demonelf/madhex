@@ -1,5 +1,3 @@
-
-
 创建 Hexo 主题非常容易，您只要在`themes`文件夹内，新增一个任意名称的文件夹，并修改`_config.yml`内的`theme`设定，即可切换主题。一个主题可能会有以下的结构：
 
 | .├── \_config.yml├── languages├── layout├── scripts└── source |
@@ -42,19 +40,19 @@
    [hexojs/site](https://github.com/hexojs/site)
 2. 把库（repository）复制到电脑上，并安装所依赖的插件。
 
-   | $ git clone https://github.com/&lt;username&gt;/site.git$ cd site$ npm install |
+   | $ git clone [https://github.com/&lt;username&gt;/site.git$](https://github.com/<username>/site.git$) cd site$ npm install |
    | :--- |
 
 3. 编辑`source/_data/themes.yml`，在文件中新增您的主题，例如：
 
-   | - name: landscape  description: A brand new default theme for Hexo.  link: https://github.com/hexojs/hexo-theme-landscape  preview: http://hexo.io/hexo-theme-landscape  tags:    - official    - responsive    - widget    - two\_column    - one\_column |
+   | - name: landscape  description: A brand new default theme for Hexo.  link: [https://github.com/hexojs/hexo-theme-landscape](https://github.com/hexojs/hexo-theme-landscape)  preview: [http://hexo.io/hexo-theme-landscape](http://hexo.io/hexo-theme-landscape)  tags:    - official    - responsive    - widget    - two\_column    - one\_column |
    | :--- |
 
 4. 在`source/themes/screenshots`新增同名的截图档案，图片必须为 800x500 的 PNG 文件。
 
 5. 推送（push）分支。
+
 6. 建立一个新的合并申请（pull request）并描述改动。
 
-  
-
+![](/assets/dd878e9f51b55c4bd574df4275cc35c0.jpg)
 
